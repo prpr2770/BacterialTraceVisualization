@@ -30,6 +30,35 @@ params.width = width;
 var divID = "timelapse";
 var tl_Scale = timelapse(cellData, divID, params);
 
+
+//------------------------------------------------------------------------
+//var window_interval = tick_duration;
+
+var time_index = 0; // keep track of time-index
+var tick_duration = 1000;
+
+
+var max_time_index =cellData[1].voltSig.length;
+
+var repeatFunctionAtIntervals = function() { // Repeatedly call this function over given time-interval.
+
+      // define a rate at which transitions occr
+      var transition_rate = tick_duration/2;
+
+      // update the x-position of tl_circle at every new time-step
+      d3.select(".tl_circle").transition()
+        .duration(transition_rate)
+        .attr("cx",tl_Scale(time_index));
+
+        // update time-step : such that it runs as an infinte loop
+        time_index = (time_index+1) % (max_time_index);
+
+      };
+
+// Create Interval-Object to periodically call a function at fixed intervals.
+var interval = window.setInterval(repeatFunctionAtIntervals ,tick_duration);
+
+
 </script>
 
 <style>

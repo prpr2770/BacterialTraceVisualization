@@ -49,5 +49,5 @@ var tl_circle = timelapse_svg.append("circle")
 	.attr("fill", "black")
 	.attr("r", tl_radius);
 
-
+return tl_scale;
 }
