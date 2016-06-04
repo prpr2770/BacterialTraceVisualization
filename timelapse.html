@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<!-- TickPanel to control rate of update -->
+<div id="tick_panel">
+    <input type="range" step='2' min="2" max="1000" value="100" id="nTicks">
+</div>
+
+<!-- Timelapse Bar indicating progress of time-step -->
+<div id="timelapse"></div>
+
+<script src="https://d3js.org/d3.v3.min.js"  charset="utf-8"></script>
+<script src="./timelapse.js"  charset="utf-8"></script>
+
+<script type='text/javascript'>
+
+// CellData from measurements
+
+var cellData = [
+{cellID: 1, voltSig : [1, 2, 3, 4, 5,1, 2, 3, 4, 5],  x: 1, y: 1 },
+{cellID: 2, voltSig : [1, 2, 3, 4, 5,5, 4, 3, 2, 1],  x: 2, y: 2 },
+{cellID: 3, voltSig : [1, 2, 3, 4, 5,6, 7, 8, 7, 6], x: 3, y: 3 },
+{cellID: 4, voltSig : [1, 2, 3, 4, 5,5, 6, 7, 8, 9], x: 4, y: 4 },
+{cellID: 5, voltSig : [1, 2, 3, 4, 5,4, 3, 2, 1, 0], x: 5, y: 5 }];
+
+
+// plot parameters
+var margin = {top: 20, right: 80, bottom: 30, left: 50},
+width = 960 - margin.left - margin.right,
+height = 500 - margin.top - margin.bottom;
+
+var params = {};
+params.margin = margin;
+params.height = height;
+params.width = width;
+
+var divID = "timelapse";
+var tl_Scale = timelapse(cellData, divID, params);
+
+
+//------------------------------------------------------------------------
+//var window_interval = tick_duration;
+
+var time_index = 0; // keep track of time-index
+var tick_duration = 100; // initialize tick-duration (rate-of-update) to some value.
+
+
+var max_time_index =cellData[1].voltSig.length;
+
+var repeatFunctionAtIntervals = function() { // Repeatedly call this function over given time-interval.
+
+      // define a rate at which transitions occr
+      var transition_rate = tick_duration/2;
+
+      // update the x-position of tl_circle at every new time-step
+      d3.select(".tl_circle").transition()
+        .duration(transition_rate)
+        .attr("cx",tl_Scale(time_index));
+
+        // update time-step : such that it runs as an infinte loop
+        time_index = (time_index+1) % (max_time_index);
+
+      };
+
+// ---------------------------------------------------------------------------
+// Implement Variable Rate of update
+
+d3.select("#tick_panel").append("p")
+.attr("class","tick_panel_value")
+.text(tick_duration);
+
+// when the input range changes update the circle
+d3.select("#nTicks").on("input", function() {
+
+    // remove last represented value
+    d3.selectAll(".tick_panel_value").remove();
+
+    // update variable value
+    tick_duration = +this.value;
+
+    // display/print new value
+    d3.select("#tick_panel").append("p")
+    .attr("class","tick_panel_value")
+    .text(tick_duration);
+
+    // clear/delete earlier created interval-object.
+    clearInterval(interval);
+
+    // update interval-object with new rate-of-update!
+    interval = window.setInterval(repeatFunctionAtIntervals, tick_duration);
+});
+
+// ---------------------------------------------------------------------------
+// Create Interval-Object to periodically call a function at fixed intervals.
+var interval = window.setInterval(repeatFunctionAtIntervals ,tick_duration);
+
+
+</script>
+
+<style>
+/* css styling for graph/plot svg elements. */
+
+</style>
