@@ -1,6 +1,6 @@
-Welcome to the BacterialTraceVisualization wiki!
+#Welcome to the BacterialTraceVisualization wiki!
 
-Basic design approach:
+###Basic design approach:
   1. Create the html element layout for incorporating the following visual elements:
     + Petridish - spatial distribution of cells from which cells may be explored either by clicking individual cells, or selecting a group of cells using a brush.
     + SingleLinePlot - Shall plot time-traces correspdonding to each clicked-cell.
@@ -8,8 +8,9 @@ Basic design approach:
   2. Design of data-structure in json format. We shall use the following sample-dataset.
   3. Use d3.js to create the sub-components based on the sample-dataset.
 
-Detailed approach for each sub-component:
-  1. HTML Element Structure defining visual elements.
+###Initial design of layout and the data-structure:
+  1. HTML Element Structure defining visual elements.  Note that we create different *div* containers to hold the different visual components corresponding to each signal-type.
+
   ```html
   <!DOCTYPE html>
   <meta charset="utf-8">
@@ -32,6 +33,8 @@ Detailed approach for each sub-component:
 
   ```
 2. Defining sample data-set to be used for building application.
+
+
   ```javascript
 
 var cellData = [
