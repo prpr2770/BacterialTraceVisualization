@@ -23,4 +23,7 @@ dot.enter()
           .attr("cx", function(d) { return xScale(d.x); })
           .attr("cy", function(d) { return yScale(d.y); })
           .attr("r",5)
+          .attr("pointer-events", "all") // activate on-click/ pointer events
+              .on("click", function(d){ alert("Clicked Me!");
+              })
       		.attr('fill', 'red');
