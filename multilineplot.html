@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<div id="multilineplot"></div>
+
+<script src="https://d3js.org/d3.v3.min.js"  charset="utf-8"></script>
+<script src="./multilineplot.js"  charset="utf-8"></script>
+
+<script type='text/javascript'>
+
+// CellData from measurements
+
+var cellData = [
+{cellID: 1, voltSig : [1, 2, 3, 4, 5,1, 2, 3, 4, 5],  x: 1, y: 1 },
+{cellID: 2, voltSig : [1, 2, 3, 4, 5,5, 4, 3, 2, 1],  x: 2, y: 2 },
+{cellID: 3, voltSig : [1, 2, 3, 4, 5,6, 7, 8, 7, 6], x: 3, y: 3 },
+{cellID: 4, voltSig : [1, 2, 3, 4, 5,5, 6, 7, 8, 9], x: 4, y: 4 },
+{cellID: 5, voltSig : [1, 2, 3, 4, 5,4, 3, 2, 1, 0], x: 5, y: 5 }];
+
+
+// plot parameters
+var margin = {top: 20, right: 80, bottom: 30, left: 50},
+width = 960 - margin.left - margin.right,
+height = 500 - margin.top - margin.bottom;
+
+var params = {};
+params.margin = margin;
+params.height = height;
+params.width = width;
+
+plotMultiLine(cellData, params);
+
+</script>
+
+<style>
+/* css styling for graph/plot svg elements. */
+
+path {
+  stroke: steelblue;
+  stroke-width: 1;
+  fill: none;
+}
+
+.axis {
+  shape-rendering: crispEdges;
+}
+
+.x.axis line {
+  stroke: lightgrey;
+}
+
+.x.axis .minor {
+  stroke-opacity: .5;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.y.axis line, .y.axis path {
+  fill: none;
+  stroke: #000;
+}
+
+
+</style>
