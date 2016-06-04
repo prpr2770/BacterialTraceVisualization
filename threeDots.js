@@ -22,13 +22,23 @@ var brush = d3.svg.brush()
 	.on("brushend", brushend);
 
 function brushmove() {
-            alert("Brush: MOVED");
+            //alert("Brush: MOVED");
+
+            // assign class:"selected" to the cells that are contained inside Brush-Area.
+            var e = brush.extent();
+            dots.selectAll(".g_cell").classed("selected", function(d) {
+                        return !( e[0][0] > xScale(d.x) || xScale(d.x)> e[1][0] || e[0][1] > yScale(d.y) || yScale(d.y) > e[1][1]);
+                        });
+
         }
 
 // If the brush is empty, select all circles.
 function brushend() {
           if (brush.empty()) { // When NO AREA is selected!
-            alert("Brush: EMPTY");
+            //alert("Brush: EMPTY");
+
+            // update class attribute of the cells.
+            dots.selectAll(".selected").classed("selected", false);
 
             }
       }
@@ -38,6 +48,10 @@ dots.classed("brush",true).call(brush);
 
 // =============================================================================
 // Defining and creating CIRCLES
+
+
+var clicked_dots = []; // array to collect all clicked-cells
+
 var dot = dots.selectAll(".g_cell").data(data);
 dot.enter()
       .append("svg:g")
@@ -48,6 +62,10 @@ dot.enter()
           .attr("cy", function(d) { return yScale(d.y); })
           .attr("r",5)
           .attr("pointer-events", "all") // activate on-click/ pointer events
-              .on("click", function(d){ alert("Clicked Me!");
+              .on("click", function(d){
+                  alert("Clicked Me!");
+                  // append into array data-contained in the g_cell elements for each clicked cell.
+                  clicked_dots.push(this.__data__);
+
               })
       		.attr('fill', 'red');
