@@ -1,4 +1,4 @@
-data = [{x:1,y:1}, {x:2,y:2}, {x:3,y:3}, {x:4,y:4}];
+data = [{cellID:1,x:1,y:1}, {cellID:2,x:2,y:2}, {cellID:3,x:3,y:3}, {cellID:4,x:4,y:4}];
 width = 400;
 height = 300;
 
@@ -48,8 +48,6 @@ dots.classed("brush",true).call(brush);
 
 // =============================================================================
 // Defining and creating CIRCLES
-
-
 var clicked_dots = []; // array to collect all clicked-cells
 
 var dot = dots.selectAll(".g_cell").data(data);
@@ -68,4 +66,26 @@ dot.enter()
                   clicked_dots.push(this.__data__);
 
               })
-      		.attr('fill', 'red');
+      		//.attr('fill', 'red')
+          .attr("fill",function(d){return "url(#gradient_"+d.cellID+")"; }); // APPLY GRADIENT to element.
+
+
+
+// =============================================================================
+// Defining Gradient colors for the cells.
+var cell_grad = dots.selectAll("defs").data(data);
+cell_grad.enter()
+	.append("defs") // cellData[i]: is associated with each <defs>
+		.append("radialGradient")
+			.attr("id",function(d){return "gradient_"+d.cellID;}) // IMP: accesses data attached to parent <svg:defs>
+			.attr("cx", "0.5").attr("cy", "0.5").attr("fx", "0.5").attr("fy", "0.5")
+			.attr("r","0.5");
+
+
+var radial_gradients = d3.selectAll("radialGradient");
+radial_gradients.append("stop").attr("offset", "0%").style("stop-color", "red");
+radial_gradients.append("stop").attr("offset", "100%").style("stop-color", "white");
+
+
+radial_gradients.transition().duration(1000)
+  .attr("r", function(d){return Math.random();});
