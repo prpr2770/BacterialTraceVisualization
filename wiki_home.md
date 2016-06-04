@@ -19,6 +19,7 @@ Detailed approach for each sub-component:
   <div id="petridish"><!-- Petridish: Spatial distribution of cells  --></div>
   <div id="multiline"><!-- Multi-line Plot  --> </div>
   <div id="singleline"><!-- Single-line Plot   --> </div>
+  <div id="tl_div"> <!-- Timelapse indicator bar  --> <svg class="timelapse"></svg> </div>
   </div>
 
   <script src="https://d3js.org/d3.v3.min.js"  charset="utf-8"></script>
