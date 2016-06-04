@@ -13,6 +13,30 @@ var dots = divdots.append("svg:svg")
               .attr("width",width)
               .attr("height", height);
 
+// =============================================================================
+// Defining BRUSH functions
+var brush = d3.svg.brush()
+	.x(d3.scale.identity().domain([0, width]))
+	.y(d3.scale.identity().domain([0, height]))
+	.on("brush", brushmove)
+	.on("brushend", brushend);
+
+function brushmove() {
+            alert("Brush: MOVED");
+        }
+
+// If the brush is empty, select all circles.
+function brushend() {
+          if (brush.empty()) { // When NO AREA is selected!
+            alert("Brush: EMPTY");
+
+            }
+      }
+
+// assign classname "brush" to the g_svg_element contained in divdots
+dots.classed("brush",true).call(brush);
+
+// =============================================================================
 // Defining and creating CIRCLES
 var dot = dots.selectAll(".g_cell").data(data);
 dot.enter()
