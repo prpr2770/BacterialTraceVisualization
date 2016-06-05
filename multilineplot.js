@@ -29,7 +29,7 @@ var svg = d3.select("body").append("svg")
 var graph_width = width + margin.left + margin.right;
 var graph_height = height + margin.top + margin.bottom;
 var graph = d3.select("#"+divID).append("svg:svg")
-      .attr("class","aGraph")
+      .attr("class","aGraph_"+divID)
       .attr("width", graph_width)
       .attr("height", graph_height)
       .append("svg:g") // what does this do?
