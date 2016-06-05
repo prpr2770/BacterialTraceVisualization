@@ -99,6 +99,37 @@ function brushend() {
             cells.selectAll(".selected").classed("selected", false);
 
             }
+
+            // -------------------------------------------------------------------
+            // display cellID of selectedCells
+            //var nodes_g = petridish.selectAll(".g_cell");
+            var selected_nodes = petridish.selectAll(".selected");
+
+            // if NO CELLS are SELECTED:
+            if (selected_nodes.node() === null){
+            //alert("selected_nodes.node() == null");
+            selected_nodes.classed("selected", false);
+              }
+            else{
+            //alert("selected_nodes.node() != null");
+
+            // -------------------------------------------------------------------
+            // update display on multiline
+            var selected_nodes_data = selected_nodes.data();
+
+            // clear the old plots
+            params.divID = "multiline";
+            d3.select(".volt").selectAll(".aGraph_"+params.divID).remove();
+
+            plotMultiLine(selected_nodes_data, params);
+
+
+            }
+
+
+
+
+
       }
 
 // assign classname "brush" to the g_svg_element contained in petridish
