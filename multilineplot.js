@@ -1,6 +1,7 @@
 function plotMultiLine(cellData, params) {
 
 var width = params.width, height = params.height, margin = params.margin;
+var divID = params.divID;
 
 var cellIDs = [];
 for (var i = 0, len = cellData.length; i < len; i++) {
@@ -27,7 +28,7 @@ var svg = d3.select("body").append("svg")
 // Add an SVG element with the desired dimensions and margin.
 var graph_width = width + margin.left + margin.right;
 var graph_height = height + margin.top + margin.bottom;
-var graph = d3.select("#multilineplot").append("svg:svg")
+var graph = d3.select("#"+divID).append("svg:svg")
       .attr("class","aGraph")
       .attr("width", graph_width)
       .attr("height", graph_height)
