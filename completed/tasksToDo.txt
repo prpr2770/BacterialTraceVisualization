@@ -1,0 +1,18 @@
+Tasks to do
+----------------
+1. plotting multiple time-series: voltage and calcium signals.
+2. lineplot_transitioning - via chaining effects! : to indicate that there's an implicit change in scale and values occuring.
+
+
+Just as you're providing divID to the plotMultiline.js,
+design the code such that you provide the signal name you'd like it to extract from the cellData.
+This takes care of the following:
+1. the div inside which data shall be presented.
+2. flexibility to choose the data_sig from within the data-set; so if the dataset has multiple signals to choose from,
+that can be done.
+
+
+HTML elemnets: Div's related to one set of signals shall be in one box.
+
+For the multiline and singleline plots, give them classnames that are common, even for the other signals.
+Differentiate betweent the types, based on the ID.
