@@ -1,6 +1,7 @@
-function timelapse(cellData, divID, params){
+function timelapse(cellData, params){
 
 var margin = params.margin, width = params.width, height = params.height;
+var divID = params.divID;
 
 var tl_radius = 5;
 

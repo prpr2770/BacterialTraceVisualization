@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<!-- TickPanel to control rate of update -->
+<div id="tick_panel" style="position:absolute;top:0px;left:800px; float:left;">
+    <input type="range" step='2' min="2" max="1000" value="100" id="nTicks">
+</div>
+
+<div class="volt" id="container" style="position:absolute;top:20px;left:50px; float:left;">
+<!-- Dynamcially create svg elements for each of following sub-components -->
+<div id="timelapse" style="position:absolute;top:0px;left:0px; float:left;"> <!-- Timelapse indicator bar  --> <svg class="timelapse"></svg> </div>
+<div id="singleline" style="position:absolute;top:0px;left:0px; float:left;"><!-- Single-line Plot   --> </div>
+<div id="multiline" style="position:absolute;top:300px;left:0px; float:left;"><!-- Multi-line Plot  --> </div>
+<div id="petridish" style="position:absolute;top:600px;left:0px; float:left;"><!-- Petridish: Spatial distribution of cells  --></div>
+
+</div>
+
+<script src="https://d3js.org/d3.v3.min.js"  charset="utf-8"></script>
+<script src="./multilineplot.js"  charset="utf-8"></script>
+<script src="./timelapse.js"  charset="utf-8"></script>
+<script>
+
+
+
+// CellData from measurements
+
+var cellData = [
+{cellID: 1, voltSig : [1, 2, 3, 4, 5,1, 2, 3, 4, 5],  x: 1, y: 1 },
+{cellID: 2, voltSig : [1, 2, 3, 4, 5,5, 4, 3, 2, 1],  x: 2, y: 2 },
+{cellID: 3, voltSig : [1, 2, 3, 4, 5,6, 7, 8, 7, 6], x: 3, y: 3 },
+{cellID: 4, voltSig : [1, 2, 3, 4, 5,5, 6, 7, 8, 9], x: 4, y: 4 },
+{cellID: 5, voltSig : [1, 2, 3, 4, 5,4, 3, 2, 1, 0], x: 5, y: 5 }];
+
+
+// plot parameters
+var margin = {top: 20, right: 80, bottom: 30, left: 50},
+width = 800 - margin.left - margin.right,
+height = 150 - margin.top - margin.bottom;
+
+var params = {};
+params.margin = margin;
+params.height = height;
+params.width = width;
+
+// timelapse bar
+params.divID = "timelapse";
+var tl_Scale = timelapse(cellData, params);
+
+// multilineplot
+params.divID = "multiline";
+plotMultiLine(cellData, params);
+
+//SingleLinePlot
+params.divID = "singleline";
+plotMultiLine([cellData[0]], params);
+
+// ############################################################################
+// spatial plots of cells
+width = 800;
+height = 500;
+
+
+// Defining the Scales of the graph
+var xScale = d3.scale.linear().domain([0,5]).range([0,width]);
+var yScale = d3.scale.linear().domain([0,5]).range([height,0]);
+
+// Creating svg elements within the selected div-container
+var petridish = d3.select("#petridish");
+var cells = petridish.append("svg:svg")
+              .attr("class","cells")
+              .attr("width",width)
+              .attr("height", height);
+
+// =============================================================================
+// Defining BRUSH functions
+var brush = d3.svg.brush()
+	.x(d3.scale.identity().domain([0, width]))
+	.y(d3.scale.identity().domain([0, height]))
+	.on("brush", brushmove)
+	.on("brushend", brushend);
+
+function brushmove() {
+            //alert("Brush: MOVED");
+
+            // assign class:"selected" to the cells that are contained inside Brush-Area.
+            var e = brush.extent();
+            cells.selectAll(".g_cell").classed("selected", function(d) {
+                        return !( e[0][0] > xScale(d.x) || xScale(d.x)> e[1][0] || e[0][1] > yScale(d.y) || yScale(d.y) > e[1][1]);
+                        });
+
+        }
+
+// If the brush is empty, select all circles.
+function brushend() {
+          if (brush.empty()) { // When NO AREA is selected!
+            //alert("Brush: EMPTY");
+
+            // update class attribute of the cells.
+            cells.selectAll(".selected").classed("selected", false);
+
+            }
+
+            // -------------------------------------------------------------------
+            // display cellID of selectedCells
+            //var nodes_g = petridish.selectAll(".g_cell");
+            var selected_nodes = petridish.selectAll(".selected");
+
+            // if NO CELLS are SELECTED:
+            if (selected_nodes.node() === null){
+            //alert("selected_nodes.node() == null");
+            selected_nodes.classed("selected", false);
+              }
+            else{
+            //alert("selected_nodes.node() != null");
+
+            // -------------------------------------------------------------------
+            // update display on multiline
+            var selected_nodes_data = selected_nodes.data();
+
+            // clear the old plots
+            params.divID = "multiline";
+            d3.select(".volt").selectAll(".aGraph_"+params.divID).remove();
+
+            plotMultiLine(selected_nodes_data, params);
+
+
+            }
+
+
+
+
+
+      }
+
+// assign classname "brush" to the g_svg_element contained in petridish
+cells.classed("brush",true).call(brush);
+
+// =============================================================================
+// Defining Gradient colors for the cells.
+var cell_grad = cells.selectAll("defs").data(cellData);
+cell_grad.enter()
+	.append("defs") // cellData[i]: is associated with each <defs>
+		.append("radialGradient")
+			.attr("id",function(d){return "gradient_"+d.cellID;}) // IMP: accesses data attached to parent <svg:defs>
+			.attr("cx", "0.5").attr("cy", "0.5").attr("fx", "0.5").attr("fy", "0.5")
+			.attr("r","0.5");
+
+
+var radial_gradients = d3.selectAll("radialGradient");
+radial_gradients.append("stop").attr("offset", "0%").style("stop-color", "red");
+radial_gradients.append("stop").attr("offset", "100%").style("stop-color", "white");
+
+
+// =============================================================================
+// Defining and creating CIRCLES
+var clicked_cells = []; // array to collect all clicked-cells
+
+var cell = cells.selectAll(".g_cell").data(cellData);
+cell.enter()
+      .append("svg:g")
+        .attr("class","g_cell")
+        .append("circle")
+          .attr("class","cell")
+          .attr("cx", function(d) { return xScale(d.x); })
+          .attr("cy", function(d) { return yScale(d.y); })
+          .attr("r",5)
+          .attr("pointer-events", "all") // activate on-click/ pointer events
+              .on("click", function(d){
+                  alert("Clicked Me!");
+                  // append into array data-contained in the g_cell elements for each clicked cell.
+                  clicked_cells.push(this.__data__);
+
+                  //SingleLinePlot update
+                  params.divID = "singleline";
+                  // delete previous plotMultiLine
+                  d3.select(".aGraph_"+params.divID).remove();
+                  // fresh plot
+                  plotMultiLine(clicked_cells, params);
+
+
+              })
+      		//.attr('fill', 'red')
+          .style("fill",function(d){return "url(#gradient_"+d.cellID+")"; }); // APPLY GRADIENT to element.
+
+
+
+
+
+// ############################################################################
+//var window_interval = tick_duration;
+
+var time_index = 0; // keep track of time-index
+var tick_duration = 100; // initialize tick-duration (rate-of-update) to some value.
+
+
+var max_time_index =cellData[1].voltSig.length;
+
+var repeatFunctionAtIntervals = function() { // Repeatedly call this function over given time-interval.
+
+      // define a rate at which transitions occr
+      var transition_rate = tick_duration/2;
+
+      // update the x-position of tl_circle at every new time-step
+      d3.select(".tl_circle").transition()
+        .duration(transition_rate)
+        .attr("cx",tl_Scale(time_index));
+
+// ----------------------------------------------------------------------
+// update the radial gradients for all cells
+var volt_rad_gradients = d3.select(".volt").selectAll("radialGradient");
+volt_rad_gradients.transition().duration(transition_rate) // change the radius of the radial_gradient at each time-step
+  .attr("r",
+    function(d){
+      var pd_rScale = d3.scale.linear().domain([d3.min(d.voltSig), d3.max(d.voltSig)]);
+      pd_rScale.range([0, 1]);
+      return pd_rScale(d.voltSig[time_index]);
+      });
+
+
+      // ----------------------------------------------------------------------
+
+        // update time-step : such that it runs as an infinte loop
+        time_index = (time_index+1) % (max_time_index);
+
+      };
+
+// ---------------------------------------------------------------------------
+// Implement Variable Rate of update
+
+d3.select("#tick_panel").append("p")
+.attr("class","tick_panel_value")
+.text(tick_duration);
+
+// when the input range changes update the circle
+d3.select("#nTicks").on("input", function() {
+
+    // remove last represented value
+    d3.selectAll(".tick_panel_value").remove();
+
+    // update variable value
+    tick_duration = +this.value;
+
+    // display/print new value
+    d3.select("#tick_panel").append("p")
+    .attr("class","tick_panel_value")
+    .text(tick_duration);
+
+    // clear/delete earlier created interval-object.
+    clearInterval(interval);
+
+    // update interval-object with new rate-of-update!
+    interval = window.setInterval(repeatFunctionAtIntervals, tick_duration);
+});
+
+// ---------------------------------------------------------------------------
+// Create Interval-Object to periodically call a function at fixed intervals.
+var interval = window.setInterval(repeatFunctionAtIntervals ,tick_duration);
+
+
+</script>
+
+<style>
+/* css styling for the elements. */
+
+/* -------------------------------------------------------------------------- */
+
+path {
+  stroke: steelblue;
+  stroke-width: 1;
+  fill: none;
+}
+
+.axis {
+  shape-rendering: crispEdges;
+}
+
+.x.axis line {
+  stroke: lightgrey;
+}
+
+.x.axis .minor {
+  stroke-opacity: .5;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.y.axis line, .y.axis path {
+  fill: none;
+  stroke: #000;
+}
+/* -------------------------------------------------------------------------- */
+
+.cell {
+  fill-opacity: .5;
+  fill: red;
+
+}
+
+
+.selected {
+    fill-opacity: 1;
+    fill: blue;
+
+  }
+
+  .brush .extent {
+  fill-opacity: .1;
+  stroke: #fff;
+  shape-rendering: crispEdges;
+}
+
+/* -------------------------------------------------------------------------- */
+
+
+</style>

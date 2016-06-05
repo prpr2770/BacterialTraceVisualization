@@ -33,9 +33,8 @@ var params = {};
 params.margin = margin;
 params.height = height;
 params.width = width;
-
-var divID = "timelapse";
-var tl_Scale = timelapse(cellData, divID, params);
+params.divID = "timelapse";
+var tl_Scale = timelapse(cellData, params);
 
 
 //------------------------------------------------------------------------
